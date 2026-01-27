@@ -5,6 +5,8 @@ from flask import Flask, render_template, request
 
 from calcs import plot_expression
 
+from llm_parser import text_to_expression
+
 # Docs and examples for Flask: https://flask.palletsprojects.com/en/stable/
 app = Flask(__name__)  # To run, use flask --app webapp run --debug
 
@@ -26,17 +28,23 @@ def test_route():
 
     return render_template('main_page.html', lucky_num=x)
 
-@app.route("/plot_graph_api")
+@app.route("/plot_graph_api") # http://127.0.0.1:5000/plot_graph_api
 def plot_graph_api():
-    func_expr = request.args.get('func_expr', '')
+    user_prompt = request.args.get('func_expr', '')
+
+    if not user_prompt.strip():
+        return {"error": "Empty input"}, 400
+
+    # converts text to math expression
+    func_expr = text_to_expression(user_prompt)
 
     rnd_suffix = random.randint(0, 1000000)
-
     plot_file = f"plot_{rnd_suffix}.png"
+
     plot_expression(func_expr, 0, 4, f"static/{plot_file}")
 
-    res = {
+    return {
+        'parsed_expression': func_expr,
         'plot_image_url': f'static/{plot_file}'
     }
-    return res
 
