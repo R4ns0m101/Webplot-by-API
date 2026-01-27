@@ -25,3 +25,18 @@ def test_route():
     x = random.randint(0, 10)
 
     return render_template('main_page.html', lucky_num=x)
+
+@app.route("/plot_graph_api")
+def plot_graph_api():
+    func_expr = request.args.get('func_expr', '')
+
+    rnd_suffix = random.randint(0, 1000000)
+
+    plot_file = f"plot_{rnd_suffix}.png"
+    plot_expression(func_expr, 0, 4, f"static/{plot_file}")
+
+    res = {
+        'plot_image_url': f'static/{plot_file}'
+    }
+    return res
+

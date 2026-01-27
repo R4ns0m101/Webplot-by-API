@@ -3,13 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <title>Function plotter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 300px;
+            font-size: 14px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        #status {
+            margin: 10px 0;
+            font-style: italic;
+            color: #666;
+        }
+        #plotImage {
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <form>
-        <input type="text" name="func_expr" value="{{ func_expr }}">
+    <h1>Function Plotter</h1>
+
+    <form id="plotForm">
+        <input type="text" name="func_expr" id="funcExpr" placeholder="e.g., x**2 + 2*x + 1">
         <button type="submit">Plot</button>
     </form>
 
-    <img src="{{ url_for('static', filename="test.png") }}" alt="Plot" width="400">
+    <div id="status"></div>
+
+    <img id="plotImage" alt="Plot" width="400">
+
+    <script>
+        const form = document.getElementById('plotForm');
+        const funcExpr = document.getElementById('funcExpr');
+        const status = document.getElementById('status');
+        const plotImage = document.getElementById('plotImage');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const expression = funcExpr.value.trim();
+            if (!expression) {
+                status.textContent = 'Please enter a function expression';
+                return;
+            }
+
+            status.textContent = 'Generating plot...';
+            plotImage.style.display = 'none';
+
+            try {
+                const response = await fetch(`/plot_graph_api?func_expr=${encodeURIComponent(expression)}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to generate plot');
+                }
+
+                const data = await response.json();
+
+                // Add timestamp to prevent caching
+                plotImage.src = data.plot_image_url + '?t=' + new Date().getTime();
+                plotImage.style.display = 'block';
+                status.textContent = 'Plot generated successfully!';
+
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
 </html>
