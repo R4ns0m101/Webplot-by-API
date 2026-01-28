@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Friend Finder</title>
+</head>
+<body>
+<h1>Find a Friend</h1>
+
+<form method="post">
+    <input name="nickname" placeholder="Your name"><br><br>
+    <textarea name="message" placeholder="Your message"></textarea><br><br>
+    <button type="submit">Send</button>
+</form>
+
+{% if recommendations %}
+<h2>Matches</h2>
+<ul>
+{% for r in recommendations %}
+    <li><b>{{ r.nick }}</b> ({{ r.similarity }}): {{ r.text }}</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+</body>
+</html>
+

@@ -2,3 +2,6 @@
 /.venv/
 /.venvmin/
 /.env
+__pycache__/
+*.pyc
+*.log
